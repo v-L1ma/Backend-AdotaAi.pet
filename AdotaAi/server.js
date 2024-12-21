@@ -18,13 +18,18 @@ app.get('/animais', async (req,res)=>{
 
 app.post('/animais', async (req,res)=>{
 
-    await prisma.animal.create({
+    await prisma.animal.create ({
         data: {
             nome: req.body.nome,
             raca: req.body.raca,
+            foto: req.body.foto,
             datanasc: req.body.datanasc,
-            localizacao: req.body.localizacao
-        }
+            sexo: req.body.sexo,
+            vacinado: req.body.vacinado,
+            castrado: req.body.castrado,
+            vermifugado: req.body.vermifugado,
+            descricao: req.body.descricao,
+        },
     })
 
     res.status(200).send({msg : 'Animal cadastrado'})
@@ -39,9 +44,14 @@ app.put('/animais/:id', async (req,res)=>{
         data: {
             nome: req.body.nome,
             raca: req.body.raca,
+            foto: req.body.foto,
             datanasc: req.body.datanasc,
-            localizacao: req.body.localizacao
-        }
+            sexo: req.body.sexo,
+            vacinado: req.body.vacinado,
+            castrado: req.body.castrado,
+            vermifugado: req.body.vermifugado,
+            descricao: req.body.descricao,
+        },
     })
 
     res.status(200).send({msg : 'Informações atualizadas'})
