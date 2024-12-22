@@ -16,6 +16,17 @@ app.get('/animais', async (req,res)=>{
     res.status(200).json(animais)
 })
 
+app.get('/animais/:id', async (req,res)=>{
+
+    const animais = await prisma.animal.findUnique({
+        where: {
+            id: req.params.id
+        },
+    })
+
+    res.status(200).json(animais)
+})
+
 app.post('/animais', async (req,res)=>{
 
     await prisma.animal.create ({
