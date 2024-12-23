@@ -71,7 +71,7 @@ app.put('/animais/:id', async (req,res)=>{
 
 app.delete('/animais/:id', async (req,res)=>{
 
-    await prisma.animal.update({
+    await prisma.animal.delete({
         where:{
             id: req.params.id
         }
