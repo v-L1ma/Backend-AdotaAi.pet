@@ -1,20 +1,17 @@
-import express, { json } from 'express'
+import express from 'express'
 import { PrismaClient } from '@prisma/client'
 import cors from 'cors'
+import publicRoutes from './routes/public.js'
+import privateRoutes from './routes/private.js'
+
+import auth from './middlewares/auth.js'
 
 const prisma = new PrismaClient()
 
 const app = express()
 
 app.use(express.json())
-app.use(cors('http://localhost:5173'))
-
-app.get('/animais', async (req,res)=>{
-
-    const animais = await prisma.animal.findMany()
-
-    res.status(200).json(animais)
-})
+app.use(cors())
 
 app.get('/animais/:id', async (req,res)=>{
 
@@ -79,5 +76,8 @@ app.delete('/animais/:id', async (req,res)=>{
     res.status(200).send({msg : 'Animal excluido'})
 })
 
+app.use('/', publicRoutes)
+app.use('/', auth, privateRoutes)
 
-app.listen(3000)
+
+app.listen(3000, ()=> console.log("server on"))
