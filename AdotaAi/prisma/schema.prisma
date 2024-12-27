@@ -25,3 +25,10 @@ model Animal {
   vermifugado String
   descricao String
 }
+
+model Usuarios{
+    id String @id @default(auto()) @map("_id") @db.ObjectId
+    email String @unique
+    name String
+    password String
+}
