@@ -11,7 +11,7 @@ const prisma = new PrismaClient()
 const app = express()
 
 app.use(express.json())
-app.use(cors())
+app.use(cors('https://adota-ai-pet.netlify.app'))
 
 app.get('/animais/:id', async (req,res)=>{
 
