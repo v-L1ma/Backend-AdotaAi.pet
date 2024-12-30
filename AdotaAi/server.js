@@ -13,6 +13,8 @@ const app = express()
 app.use(express.json())
 app.use(cors())
 
+const port = process.env.PORT || 3000
+
 app.get('/animais/:id', async (req,res)=>{
 
     const animais = await prisma.animal.findUnique({
@@ -80,4 +82,4 @@ app.use('/', publicRoutes)
 app.use('/', auth, privateRoutes)
 
 
-app.listen(3000, ()=> console.log("server on"))
+app.listen(port, ()=> console.log("server on"))
