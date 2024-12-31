@@ -11,7 +11,7 @@ const prisma = new PrismaClient()
 const app = express()
 
 app.use(express.json())
-app.use(cors('https://adota-ai-pet.netlify.app'))
+app.use(cors('https://adotaai-pet.netlify.app'))
 
 const port = process.env.PORT || 3000
 
