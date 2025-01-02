@@ -1,10 +1,10 @@
 import express from 'express'
 import { PrismaClient } from '@prisma/client'
 import cors from 'cors'
-import publicRoutes from './routes/public.js'
-import privateRoutes from './routes/private.js'
+import publicRoutes from '../routes/public.js'
+import privateRoutes from '../routes/private.js'
 
-import auth from './middlewares/auth.js'
+import auth from '../middlewares/auth.js'
 
 const prisma = new PrismaClient()
 
@@ -16,7 +16,7 @@ app.use(cors())
 const port = process.env.PORT || 3000
 
 app.get('/', (req,res)=>{
-    res.status(200).json({msg:"API Funcionando"})
+    res.send("API Funcionando")
 })
 
 app.get('/animais/:id', async (req,res)=>{
