@@ -13,8 +13,6 @@ const app = express()
 app.use(express.json())
 app.use(cors())
 
-const port = process.env.PORT || 3000
-
 app.get('/', (req,res)=>{
     res.status(200).json({msg:"API Funcionando"})
 })
@@ -86,4 +84,4 @@ app.use('/', publicRoutes)
 app.use('/', auth, privateRoutes)
 
 
-app.listen(port, ()=> console.log("server on"))
+app.listen(process.env.PORT || 3000, ()=> console.log("server on"))
