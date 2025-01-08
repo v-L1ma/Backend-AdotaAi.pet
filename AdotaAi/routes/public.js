@@ -18,11 +18,11 @@ router.post('/cadastro', async (req, res)=>{
     await prisma.usuarios.create({
         data: {
             email: user.email,
-            name: user.name,
+            name: user.name,            
+            password: hashPassword,
             cpf: user.cpf,
             birthdate: user.birthdate,
             phone: user.phone,
-            password: hashPassword
         },
     })
 
