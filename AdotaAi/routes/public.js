@@ -19,6 +19,9 @@ router.post('/cadastro', async (req, res)=>{
         data: {
             email: user.email,
             name: user.name,
+            cpf: user.cpf,
+            birthdate: user.birthdate,
+            phone: user.phone,
             password: hashPassword
         },
     })
@@ -36,11 +39,11 @@ router.post('/login', async (req,res)=>{
         const userInfo = req.body
 
         const user = await prisma.usuarios.findUnique({
-            where: {email: userInfo.email },
+            where: {email: userInfo.email},
         })
 
         if(!user){
-            return res.status(404).json({message: "Usuario não encotrado"})
+            return res.status(404).json({message: "Usuario não encontrado"})
         }
 
         const isMatch = await bcrypt.compare(userInfo.password, user.password)
