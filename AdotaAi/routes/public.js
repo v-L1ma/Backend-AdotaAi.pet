@@ -55,7 +55,11 @@ router.post('/login', async (req,res)=>{
         //Gerando o JWT token
         const token = jwt.sign({id: user.id}, JWT_SECRET, {expiresIn: '7d'})
 
-        res.status(200).json(token)
+        //res.status(200).json(token)
+        const userWithoutPassword = {...user}
+        delete userWithoutPassword.password
+        res.status(200).json({"user":userWithoutPassword , "token":token})
+        
 
     } catch (error) {
         console.error(error)
