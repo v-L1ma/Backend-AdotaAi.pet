@@ -2,11 +2,95 @@ import express from 'express'
 import bcrypt from 'bcrypt'
 import { PrismaClient } from '@prisma/client'
 import jwt from 'jsonwebtoken'
+import Multer from "multer";
+import { google } from "googleapis";
+import fs from 'fs'
 
 const prisma = new PrismaClient()
 const router = express.Router()
 
 const JWT_SECRET = process.env.JWT_SECRET
+
+const multer = Multer({
+    storage: Multer.diskStorage({
+      destination: function (req, file, callback) {
+        callback(null, `./files`);
+      },
+      filename: function (req, file, callback) {
+        callback(null, file.fieldname + "_" + Date.now() + "_" + file.originalname);
+      },
+    }),
+    limits: {
+      fileSize: 5 * 1024 * 1024,
+    },
+  });
+
+  const authenticateGoogle = () => {
+    const auth = new google.auth.GoogleAuth({
+      keyFile: './googledrive.json',
+      scopes: "https://www.googleapis.com/auth/drive",
+    });
+    return auth;
+  };
+
+  const uploadToGoogleDrive = async (file, auth) => {
+    const fileMetadata = {
+      name: file.originalname,
+      parents: ["10IAFrfvR7Pakm1ouF31uorr6zir5H-pV"], // Change it according to your desired parent folder id
+    };
+  
+    const media = {
+      mimeType: file.mimetype,
+      body: fs.createReadStream(file.path),
+    };
+  
+    const driveService = google.drive({ version: "v3", auth });
+  
+    const response = await driveService.files.create({
+      requestBody: fileMetadata,
+      media: media,
+      fields: "id",
+    });
+    return response.data.id;
+  };
+
+  const deleteFile = (filePath) => {
+    fs.unlink(filePath, () => {
+      console.log("file deleted");
+    });
+  };
+
+  router.post("/upload", multer.single("file"), async (req, res, next) => {
+    try {
+        if (!req.file) {
+          res.status(400).send("No file uploaded.");
+          return;
+        }
+        const auth = authenticateGoogle();
+        const response = await uploadToGoogleDrive(req.file, auth);
+        deleteFile(req.file.path);
+        res.status(200).json({ response });
+      } catch (err) {
+        console.log(err);
+        next(err)
+    }
+  })
+
+  router.post("/upload", multer.single("file"), async (req, res, next) => {
+    try {
+        if (!req.file) {
+          res.status(400).send("No file uploaded.");
+          return;
+        }
+        const auth = authenticateGoogle();
+        const response = await uploadToGoogleDrive(req.file, auth);
+        res.status(200).json({ response });
+      }catch (err) {
+        console.log(err);
+        next(err); // Passa o erro para o próximo middleware de tratamento de erros
+      }
+  })
+    
 
 router.post('/cadastro', async (req, res)=>{
    try { 
