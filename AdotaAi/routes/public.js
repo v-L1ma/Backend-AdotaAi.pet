@@ -36,7 +36,7 @@ const multer = Multer({
   const uploadToGoogleDrive = async (file, auth) => {
     const fileMetadata = {
       name: file.originalname,
-      parents: ["10IAFrfvR7Pakm1ouF31uorr6zir5H-pV"], // Change it according to your desired parent folder id
+      parents: ["1ABftdbXNw2MvdnEAglxLsjvCRxLpPLKD"], // Change it according to your desired parent folder id
     };
   
     const media = {
@@ -60,63 +60,43 @@ const multer = Multer({
     });
   };
 
-  router.post("/upload", multer.single("file"), async (req, res, next) => {
+  router.post('/cadastro', multer.single('file'), async (req, res) => {
     try {
-        if (!req.file) {
-          res.status(400).send("No file uploaded.");
-          return;
-        }
-        const auth = authenticateGoogle();
-        const response = await uploadToGoogleDrive(req.file, auth);
-        deleteFile(req.file.path);
-        res.status(200).json({ response });
-      } catch (err) {
-        console.log(err);
-        next(err)
-    }
-  })
-
-  router.post("/upload", multer.single("file"), async (req, res, next) => {
-    try {
-        if (!req.file) {
-          res.status(400).send("No file uploaded.");
-          return;
-        }
-        const auth = authenticateGoogle();
-        const response = await uploadToGoogleDrive(req.file, auth);
-        res.status(200).json({ response });
-      }catch (err) {
-        console.log(err);
-        next(err); // Passa o erro para o próximo middleware de tratamento de erros
+      const { email, name, password, cpf, birthdate, phone } = req.body;
+  
+      // Upload do arquivo
+      if (!req.file) {
+        return res.status(400).send('Nenhum arquivo enviado.');
       }
-  })
-    
-
-router.post('/cadastro', async (req, res)=>{
-   try { 
-    const user = req.body
-
-    const salt = await bcrypt.genSalt(10)
-    const hashPassword = await bcrypt.hash(user.password, salt)
-
-    await prisma.usuarios.create({
+  
+      const auth = authenticateGoogle();
+      const uploadResponse = await uploadToGoogleDrive(req.file, auth);
+  
+      const pictureUrl = uploadResponse; // Assuma que isso é a URL ou ID do arquivo
+  
+      // Criptografar a senha
+      const salt = await bcrypt.genSalt(10);
+      const hashPassword = await bcrypt.hash(password, salt);
+  
+      // Salvar no banco
+      await prisma.usuarios.create({
         data: {
-            email: user.email,
-            name: user.name,            
-            password: hashPassword,
-            cpf: user.cpf,
-            birthdate: user.birthdate,
-            phone: user.phone,
+          email,
+          name,
+          password: hashPassword,
+          cpf,
+          birthdate,
+          phone,
+          Picture: pictureUrl, // Salva a URL da imagem
         },
-    })
-
-    res.status(200).json({msg:"usuario criado"})
+      });
+  
+      res.status(200).json({ msg: 'Usuário criado com sucesso!' });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Erro no servidor' });
     }
-    catch(error){
-        console.error(error)
-        res.status(500).json({message:"Erro no lado do servidor"})
-    }
-})
+  });
 
 router.post('/login', async (req,res)=>{
     try {

@@ -34,4 +34,5 @@ model Usuarios{
     cpf String
     birthdate String
     phone String
+    Picture String
 }
