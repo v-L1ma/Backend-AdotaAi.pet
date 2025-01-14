@@ -90,6 +90,8 @@ const multer = Multer({
           Picture: pictureUrl, // Salva a URL da imagem
         },
       });
+
+      deleteFile(req.file.path);
   
       res.status(200).json({ msg: 'Usuário criado com sucesso!' });
     } catch (error) {

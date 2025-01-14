@@ -17,13 +17,13 @@ model Animal {
   id    String  @id @default(auto()) @map("_id") @db.ObjectId
   nome  String
   raca  String
-  foto  String
   datanasc String
   sexo String
   vacinado String
   castrado String
   vermifugado String
   descricao String
+  Picture  String
 }
 
 model Usuarios{
