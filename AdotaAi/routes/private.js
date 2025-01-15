@@ -3,9 +3,15 @@ import { PrismaClient } from '@prisma/client'
 import Multer from "multer";
 import { google } from "googleapis";
 import fs from 'fs'
+import dotenv from 'dotenv';
+
 
 const router = express.Router()
 const prisma = new PrismaClient()
+dotenv.config();
+
+const credentials = process.env.credentials
+ 
 
 const multer = Multer({
     storage: Multer.diskStorage({
@@ -23,7 +29,7 @@ const multer = Multer({
 
   const authenticateGoogle = () => {
     const auth = new google.auth.GoogleAuth({
-      keyFile: './googledrive.json',
+      credentials,
       scopes: "https://www.googleapis.com/auth/drive",
     });
     return auth;

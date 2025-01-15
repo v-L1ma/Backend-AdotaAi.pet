@@ -11,6 +11,23 @@ const router = express.Router()
 
 const JWT_SECRET = process.env.JWT_SECRET
 
+const credentials = 
+  {
+    "type": "service_account",
+    "project_id": "adotaai-447500",
+    "private_key_id": "da20436fea23658ea407d4761b9066f670800adb",
+    "private_key": process.env.private_key.replace(/\\n/g, '\n'),
+    "client_email": "adotaai@adotaai-447500.iam.gserviceaccount.com",
+    "client_id": "110718253060481934072",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/adotaai%40adotaai-447500.iam.gserviceaccount.com",
+    "universe_domain": "googleapis.com",
+  }
+
+
+
 const multer = Multer({
     storage: Multer.diskStorage({
       destination: function (req, file, callback) {
@@ -27,7 +44,8 @@ const multer = Multer({
 
   const authenticateGoogle = () => {
     const auth = new google.auth.GoogleAuth({
-      keyFile: './googledrive.json',
+    
+      credentials,
       scopes: "https://www.googleapis.com/auth/drive",
     });
     return auth;
