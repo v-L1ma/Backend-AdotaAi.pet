@@ -2,37 +2,64 @@ import express from 'express'
 import bcrypt from 'bcrypt'
 import { PrismaClient } from '@prisma/client'
 import jwt from 'jsonwebtoken'
+import Multer from "multer";
+import fs from 'fs'
 
 const prisma = new PrismaClient()
 const router = express.Router()
 
 const JWT_SECRET = process.env.JWT_SECRET
 
-router.post('/cadastro', async (req, res)=>{
-   try { 
-    const user = req.body
 
-    const salt = await bcrypt.genSalt(10)
-    const hashPassword = await bcrypt.hash(user.password, salt)
+const multer = Multer({
+    storage: Multer.diskStorage({
+      destination: function (req, file, callback) {
+        callback(null, `./files`);
+      },
+      filename: function (req, file, callback) {
+        callback(null, Date.now() + "_" + file.originalname);
+      },
+    }),
+    limits: {
+      fileSize: 5 * 1024 * 1024,
+    },
+  });
 
-    await prisma.usuarios.create({
+  router.post('/cadastro', multer.single('file'), async (req, res) => {
+    try {
+      const { email, name, password, cpf, birthdate, phone } = req.body;
+  
+      // Upload do arquivo
+      if (!req.file) {
+        return res.status(400).send('Nenhum arquivo enviado.');
+      }
+  
+      // Criptografar a senha
+      const salt = await bcrypt.genSalt(10);
+      const hashPassword = await bcrypt.hash(password, salt);
+  
+      // Salvar no banco
+      await prisma.usuarios.create({
         data: {
-            email: user.email,
-            name: user.name,            
-            password: hashPassword,
-            cpf: user.cpf,
-            birthdate: user.birthdate,
-            phone: user.phone,
+          email,
+          name,
+          password: hashPassword,
+          cpf,
+          birthdate,
+          phone,
+          Picture: req.file.filename,
         },
-    })
+      });
+  
+      res.status(200).json({ msg: 'Usuário criado com sucesso!' });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Erro no servidor' });
+    }
+  });
 
-    res.status(200).json({msg:"usuario criado"})
-    }
-    catch(error){
-        console.error(error)
-        res.status(500).json({message:"Erro no lado do servidor"})
-    }
-})
+router.use('/ver', express.static("files"))
+//http://localhost:3000/ver/file.path
 
 router.post('/login', async (req,res)=>{
     try {
@@ -59,7 +86,6 @@ router.post('/login', async (req,res)=>{
         const userWithoutPassword = {...user}
         delete userWithoutPassword.password
         res.status(200).json({"user":userWithoutPassword , "token":token})
-        
 
     } catch (error) {
         console.error(error)
