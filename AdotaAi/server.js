@@ -21,6 +21,7 @@ app.get('/', (req,res)=>{
 
 app.use('/', publicRoutes)
 app.use('/', auth, privateRoutes)
+app.use('/ver', express.static('/app/files'))
 
 
 app.listen(process.env.PORT || 3000, ()=> console.log("server on"))
