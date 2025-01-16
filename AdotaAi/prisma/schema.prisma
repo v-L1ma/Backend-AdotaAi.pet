@@ -15,7 +15,8 @@ datasource db {
 
 model Animal {
   id    String  @id @default(auto()) @map("_id") @db.ObjectId
-  nome  String
+  idDono String
+  nome String
   raca  String
   datanasc String
   sexo String
