@@ -58,7 +58,7 @@ const multer = Multer({
     }
   });
 
-router.use('/ver', express.static('/app/files'))
+router.use('/ver', express.static('/files'))
 //http://localhost:3000/ver/file.path
 
 router.post('/login', async (req,res)=>{
