@@ -10,6 +10,12 @@ const router = express.Router()
 
 const JWT_SECRET = process.env.JWT_SECRET
 
+const fs = require('fs');
+const uploadDir = '/app/files';
+
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
 
 const multer = Multer({
     storage: Multer.diskStorage({
