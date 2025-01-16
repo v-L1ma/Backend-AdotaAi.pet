@@ -1,26 +1,32 @@
 import express from 'express'
 import { PrismaClient } from '@prisma/client'
-import Multer from "multer";
+import multer from "multer";
 import fs from 'fs';
 
 
 const router = express.Router()
-const prisma = new PrismaClient() 
+const prisma = new PrismaClient()
 
-const multer = Multer({
-    storage: Multer.diskStorage({
-      destination: function (req, file, callback) {
-        callback(null, `./files`);
-      },
-      filename: function (req, file, callback) {
-        callback(null, Date.now() + "_" + file.originalname);
-      },
-    }),
-    limits: {
-      fileSize: 5 * 1024 * 1024,
+const uploadDir = `/app/files`;
+
+// Certifique-se de que o diretório existe
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const multerInstance = multer({
+  storage: multer.diskStorage({
+    destination: function (req, file, callback) {
+      callback(null, uploadDir);
     },
-  });
-
+    filename: function (req, file, callback) {
+      callback(null, file.fieldname + "_" + Date.now() + "_" + file.originalname);
+    },
+  }),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // Limite de 5MB
+  },
+});
 
 router.get('/animais', async (req,res)=>{
 
