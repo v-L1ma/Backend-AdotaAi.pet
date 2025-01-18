@@ -1,26 +1,30 @@
 import express from 'express'
 import { PrismaClient } from '@prisma/client'
 import Multer from "multer";
-import fs from 'fs';
-
+import multerS3 from 'multer-s3'
+import AWS from 'aws-sdk'
 
 const router = express.Router()
 const prisma = new PrismaClient() 
 
-const multer = Multer({
-    storage: Multer.diskStorage({
-      destination: function (req, file, callback) {
-        callback(null, `./files`);
-      },
-      filename: function (req, file, callback) {
-        callback(null, Date.now() + "_" + file.originalname);
-      },
-    }),
-    limits: {
-      fileSize: 5 * 1024 * 1024,
-    },
-  });
+AWS.config.update({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+})
 
+const s3 = new AWS.S3()
+const myBucket = process.env.AWS_BUCKET_NAME
+
+var multer = Multer({
+  storage: multerS3({
+    s3: s3,
+    bucket: myBucket,
+    contentType: multerS3.AUTO_CONTENT_TYPE,
+    key: function (req, file, callback) {
+      callback(null, Date.now() + "_" + file.originalname);
+    }
+  })
+})
 
 router.get('/animais', async (req,res)=>{
 
@@ -52,6 +56,8 @@ router.post('/animais', multer.single('file'), async (req, res) => {
       if (!req.file) {
         return res.status(400).send('Nenhum arquivo enviado.');
       }
+
+      const imageURL = req.file.location;
   
       // Salvar no banco
       await prisma.animal.create({
@@ -66,7 +72,7 @@ router.post('/animais', multer.single('file'), async (req, res) => {
             castrado: req.body.castrado,
             vermifugado: req.body.vermifugado,
             descricao: req.body.descricao,
-            Picture: req.file.filename,
+            Picture: imageURL,
         },
       });
   
@@ -76,6 +82,8 @@ router.post('/animais', multer.single('file'), async (req, res) => {
       res.status(500).json({ message: 'Erro no servidor' });
     }
   });
+
+
 /*
 router.post('/animais', async (req,res)=>{
 
