@@ -2,13 +2,45 @@ import express from 'express'
 import bcrypt from 'bcrypt'
 import { PrismaClient } from '@prisma/client'
 import jwt from 'jsonwebtoken'
+import Multer from "multer";
+import multerS3 from 'multer-s3'
+import { S3Client } from '@aws-sdk/client-s3';
+
 
 const prisma = new PrismaClient()
 const router = express.Router()
 
 const JWT_SECRET = process.env.JWT_SECRET
 
+// Configuração do cliente S3 com AWS SDK v3
+const s3 = new S3Client({
+  region: process.env.AWS_REGION, // Certifique-se de definir a região no .env
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
+});
 
+
+const myBucket = process.env.AWS_BUCKET_NAME;
+
+// Configuração do multer com multer-s3
+const multer = Multer({
+  storage: multerS3({
+    s3: s3,
+    bucket: myBucket,
+    contentType: multerS3.AUTO_CONTENT_TYPE,
+    key: (req, file, callback) => {
+      // Define o nome do arquivo como timestamp + nome original
+      callback(null, `${Date.now()}_${file.originalname}`);
+    },
+  }),
+});
+
+router.post("/upload", multer.single("file"), (req,res)=>{
+  console.log(req.file)
+  res.status(200).json({message: "Deu bom"})
+})
 
   router.post('/cadastro', multer.single('file'), async (req, res) => {
     try {
@@ -22,6 +54,7 @@ const JWT_SECRET = process.env.JWT_SECRET
       // Criptografar a senha
       const salt = await bcrypt.genSalt(10);
       const hashPassword = await bcrypt.hash(password, salt);
+      
   
       // Salvar no banco
       await prisma.usuarios.create({
