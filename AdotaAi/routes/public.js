@@ -2,33 +2,13 @@ import express from 'express'
 import bcrypt from 'bcrypt'
 import { PrismaClient } from '@prisma/client'
 import jwt from 'jsonwebtoken'
-import Multer from "multer";
-import fs from 'fs'
 
 const prisma = new PrismaClient()
 const router = express.Router()
 
 const JWT_SECRET = process.env.JWT_SECRET
 
-const uploadDir = '/app/files';
 
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-const multer = Multer({
-    storage: Multer.diskStorage({
-      destination: function (req, file, callback) {
-        callback(null, '/app/files');
-      },
-      filename: function (req, file, callback) {
-        callback(null, Date.now() + "_" + file.originalname);
-      },
-    }),
-    limits: {
-      fileSize: 5 * 1024 * 1024,
-    },
-  });
 
   router.post('/cadastro', multer.single('file'), async (req, res) => {
     try {
