@@ -4,8 +4,10 @@ import Multer from "multer";
 import multerS3 from 'multer-s3'
 import { S3Client } from '@aws-sdk/client-s3';
 
+
 const router = express.Router()
 const prisma = new PrismaClient() 
+
 
 // Configuração do cliente S3 com AWS SDK v3
 const s3 = new S3Client({

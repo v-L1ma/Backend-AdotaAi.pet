@@ -6,6 +6,7 @@ import Multer from "multer";
 import multerS3 from 'multer-s3'
 import { S3Client } from '@aws-sdk/client-s3';
 
+
 const prisma = new PrismaClient()
 const router = express.Router()
 
@@ -19,6 +20,7 @@ const s3 = new S3Client({
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   },
 });
+
 
 const myBucket = process.env.AWS_BUCKET_NAME;
 
@@ -74,7 +76,6 @@ router.post("/upload", multer.single("file"), (req,res)=>{
     }
   });
 
-router.use('/ver', express.static("files"))
 //http://localhost:3000/ver/file.path
 
 router.post('/login', async (req,res)=>{
