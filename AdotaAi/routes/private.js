@@ -2,29 +2,34 @@ import express from 'express'
 import { PrismaClient } from '@prisma/client'
 import Multer from "multer";
 import multerS3 from 'multer-s3'
-import AWS from 'aws-sdk'
+import { S3Client } from '@aws-sdk/client-s3';
 
 const router = express.Router()
 const prisma = new PrismaClient() 
 
-AWS.config.update({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-})
-
-const s3 = new AWS.S3()
-const myBucket = process.env.AWS_BUCKET_NAME
-
-var multer = Multer({
-  storage: multerS3({
-    s3: s3,
-    bucket: myBucket,
-    contentType: multerS3.AUTO_CONTENT_TYPE,
-    key: function (req, file, callback) {
-      callback(null, Date.now() + "_" + file.originalname);
-    }
-  })
-})
+// Configuração do cliente S3 com AWS SDK v3
+const s3 = new S3Client({
+    region: process.env.AWS_REGION, // Certifique-se de definir a região no .env
+    credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    },
+  });
+  
+  const myBucket = process.env.AWS_BUCKET_NAME;
+  
+  // Configuração do multer com multer-s3
+  const multer = Multer({
+    storage: multerS3({
+      s3: s3,
+      bucket: myBucket,
+      contentType: multerS3.AUTO_CONTENT_TYPE,
+      key: (req, file, callback) => {
+        // Define o nome do arquivo como timestamp + nome original
+        callback(null, `${Date.now()}_${file.originalname}`);
+      },
+    }),
+  });
 
 router.get('/animais', async (req,res)=>{
 
@@ -49,7 +54,7 @@ router.get('/animais/:id', async (req,res)=>{
 })
 
 
-router.post('/animais', multer.single('file'), async (req, res) => {
+router.post('/animais', multer.single("file"), async (req, res) => {
     try {
   
       // Upload do arquivo
@@ -57,7 +62,10 @@ router.post('/animais', multer.single('file'), async (req, res) => {
         return res.status(400).send('Nenhum arquivo enviado.');
       }
 
+      console.log(req.file)
+
       const imageURL = req.file.location;
+      console.log(imageURL)
   
       // Salvar no banco
       await prisma.animal.create({
