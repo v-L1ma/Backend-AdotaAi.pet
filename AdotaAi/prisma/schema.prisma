@@ -17,6 +17,7 @@ model Animal {
   id    String  @id @default(auto()) @map("_id") @db.ObjectId
   idDono String
   nome String
+  animal String
   raca  String
   datanasc String
   sexo String

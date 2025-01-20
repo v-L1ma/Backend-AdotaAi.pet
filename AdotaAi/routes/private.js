@@ -74,6 +74,7 @@ router.post('/animais', multer.single("file"), async (req, res) => {
         data: {
             idDono: req.body.idDono,
             nome: req.body.nome,
+            animal: req.body.animal,
             raca: req.body.raca,
             foto: req.body.foto,
             datanasc: req.body.datanasc,
