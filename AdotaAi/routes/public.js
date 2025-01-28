@@ -42,7 +42,7 @@ router.post("/upload", multer.single("file"), (req,res)=>{
   res.status(200).json({message: "Deu bom"})
 })
 
-  router.post('/cadastro', multer.single('file'), async (req, res) => {
+  router.post('/cadastro', multer.single("file"), async (req, res) => {
     try {
       const { email, name, password, cpf, birthdate, phone } = req.body;
   
@@ -54,6 +54,9 @@ router.post("/upload", multer.single("file"), (req,res)=>{
       // Criptografar a senha
       const salt = await bcrypt.genSalt(10);
       const hashPassword = await bcrypt.hash(password, salt);
+
+      const imageURL = req.file.location;
+      console.log(imageURL)
       
   
       // Salvar no banco
@@ -65,7 +68,7 @@ router.post("/upload", multer.single("file"), (req,res)=>{
           cpf,
           birthdate,
           phone,
-          Picture: req.file.filename,
+          Picture: imageURL,
         },
       });
   
@@ -75,8 +78,6 @@ router.post("/upload", multer.single("file"), (req,res)=>{
       res.status(500).json({ message: 'Erro no servidor' });
     }
   });
-
-//http://localhost:3000/ver/file.path
 
 router.post('/login', async (req,res)=>{
     try {
